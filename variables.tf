@@ -1,5 +1,7 @@
-variable "name" { type = string }
-variable "release_count" {
-  type    = number
-  default = 10
+variable "name" {
+  type = string
+}
+
+variable "allowed_origins" {
+  type = list(string)
 }

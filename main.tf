@@ -1,32 +1,17 @@
-resource "aws_ecr_repository" "default" {
-  name                 = var.name
-  image_tag_mutability = "MUTABLE"
+module "default" {
+  source                  = "terraform-aws-modules/s3-bucket/aws"
+  version                 = "~> 3.0"
+  bucket                  = var.name
+  acl                     = "private"
+  attach_public_policy    = true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+  force_destroy           = true
+  cors_rule = []
 
-  image_scanning_configuration {
-    scan_on_push = true
+  tags = {
+    Name = var.name
   }
-}
-
-resource "aws_ecr_lifecycle_policy" "default" {
-  repository = aws_ecr_repository.default.name
-
-  policy = jsonencode(
-    {
-      rules = [
-        {
-          action = {
-            type = "expire"
-          }
-          description  = "Keep last ${var.release_count} release tagged images"
-          rulePriority = 1
-          selection = {
-            tagStatus     = "tagged"
-            tagPrefixList = ["release"]
-            countType     = "imageCountMoreThan"
-            countNumber   = var.release_count
-          }
-        },
-      ]
-    }
-  )
 }
